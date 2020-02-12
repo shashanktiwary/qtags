@@ -1,0 +1,12 @@
+<article class="article-main">
+	<div fxLayout="row wrap" fxLayoutGap="15px"  fxLayoutAlign="space-around center">
+		<div fxFlex="1 1 60"  fxFlex.lt-sm="1 1 auto" fxFill fxFlexOffset="15px">
+			<mat-form-field style="min-width:100%;">
+				<input #pKey style="min-width:100%;"  matInput placeholder="Quiz Pin Number">
+      </mat-form-field>
+    </div>
+    	<div fxFlex="1 1 60" fxFlex.lt-sm="1 1 auto" fxFlexOffset="15px">
+        <button mat-raised-button color="primary" (click)="tryParticipate(pKey.value)">Participate</button>
+    	</div>
+  </div>
+</article>
