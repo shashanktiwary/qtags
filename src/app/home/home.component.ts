@@ -1,8 +1,9 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import {Router} from "@angular/router";
-import { FormControl } from '@angular/forms';
-import { MatSnackBar } from '@angular/material';
+import { BehaviorSubject, concat, Observable, of, Subscription } from "rxjs";
+import { concatMap, delay, map, skip, tap } from 'rxjs/operators';
 import { Quiz } from '../../models/Quiz';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -10,16 +11,45 @@ import { Quiz } from '../../models/Quiz';
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit {
+  pollResult$: Subscription;
+  loadResult$ = new BehaviorSubject('');
 
-  constructor(private router : Router, private mbar : MatSnackBar) { }
 
-  ngOnInit() {
+  constructor(private http: HttpClient, private router: Router) {
 
   }
 
-  tryParticipate = function(value){
-    if(!value){
-      this.mbar.open(`Enter pin to search the quiz`,"", {duration: 3000});
+  ngOnInit() {
+    const job$ = this.http.get('http://localhost:4200/assets/data.json');
+
+    const whenToRefresh$ = of('').pipe(
+      delay(5000),
+      tap(_ => this.loadResult$.next('')),
+      skip(1),
+    );
+
+    const poll$ = concat(job$, whenToRefresh$);
+
+    this.pollResult$ = this.loadResult$.pipe(
+       concatMap(_ => poll$),
+       map((response: {result: {status: String}}) => response.result)
+    ).subscribe((result) => this.processJobResult(result));
+  }
+
+  processJobResult(result) {
+    if(result.status == 'Success') {
+      this.pollResult$.unsubscribe();
+      const url = this.router.serializeUrl(
+        this.router.createUrlTree(['/dashboard'])
+      );
+
+      window.open(url, '_blank');
+    }
+  }
+
+  tryParticipate = function (value) {
+    if (!value) {
+      this.mbar.open(`Enter pin to search the quiz`, "", { duration: 3000 });
       return;
     }
 

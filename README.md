@@ -31,4 +31,7 @@ To get more help on the Angular CLI use `ng help` or go check out the [Angular C
 3. docker push url/image:tag
 4. oc new-app url/image:tag
 
+### sudo apt  install awscli
+
+
 
